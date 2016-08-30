@@ -3,6 +3,7 @@
  * 2016-08-29 - Recode for new Summon Markup  
  */
 $(document).ready(function () {
+    //Load custom CSS used by the elements in this code
 	$(document).find("head").append("<style id='gu-custom-css' type='text/css'/>");
 	$("#gu-custom-css").append(".holding-msg {font-weight: bold; margin-top: 9px; margin-bottom: 9px;}");
 	$("#gu-custom-css").append(".holding-header-sep {border-top: dashed 1px #8d817b; padding-top: 9px;}");
@@ -25,18 +26,23 @@ $(document).ready(function () {
     $("#gu-custom-css").append(".input-group-btn:last-child > .btn:last-of-type {margin-left:12px;}");
     $("#gu-custom-css").append(".site-white_cog {background-image: none; min-width: 95px;}");
     $("#gu-custom-css").append(".site-white_cog::before {content:'Advanced Search'; color: #BAE0F7; font-size: 80%; font-weight: bold; font-family:sans-serif;}");
-    debug("Pre checkAll h");
-    setTimeout(function () {checkAll(); }, 2000);
+    debug("Pre checkAll i");
+    //Allow some time for real time availability data (rta) to load
+    setTimeout(function () {checkAll(); }, 1000);
 });
 
+//Not sure what this block is doing
 $(document).ready(function () {
 	$(document).find("body").append("<div class='needs-js'>&nbsp;</div>");
 });
                   
+//Load custom help resource
 $(document).ready(function () {
 	$(document).find("head").append("<script id='summon-proactive-chat' async='' type='text/javascript' src='//us.libraryh3lp.com/js/libraryh3lp.js?8796' />");
 });
 
+
+//Check for ArtStor image carousel.  (As of 8/2016, it may no longer be present)
 function imageCheck() {
 	$("div.imagesRollup:not(.gu-checked)").each(
 		function () {
@@ -46,18 +52,10 @@ function imageCheck() {
 		}
 	);
 }
-function checkAll() {
-	$("div.summary:not(.gu-checked)").each(
-		function () {
-			checkResult(this);
-		}
-	);
-    imageCheck();
-	setTimeout(function () {checkAll(); }, 500);
-}
 
+//Control display of console messages
 function isDebug() {
-    return true;
+    return false;
 }
 
 function debug(s) {
@@ -66,7 +64,80 @@ function debug(s) {
     }
 }
 
+//Check all result elements that have not been processed
+function checkAll() {
+	$("div.summary:not(.gu-checked)").each(
+		function () {
+			checkResult(this);
+		}
+	);
+    imageCheck();
+    //Due to incremental page load, schedule this task to run again
+	setTimeout(function () {checkAll(); }, 500);
+}
 
+
+//Check a specific result, mark the result when complete
+function checkResult(el) {
+    var res = $(el).parents("div.documentSummary").find("span.resultNumber").text();
+    debug("Checking result "+res);
+    var total = $(el).find("div.docFooter>div.row>div>div:has(span.icon)").length;
+    var rtael = $(el).find("div.docFooter>div.row>div>div:has(a.availabilityLink)");
+    var rta = rtael.length;
+    rtael.each(
+        function () {
+            if (testHolding(this)) {
+                $(this).addClass("gu-holding");
+            } else if (testOnlineHolding(this)) {
+                $(this).addClass("online-holding");
+            } else {
+                $(this).addClass("non-gu-holding");
+            }
+        }
+    );
+    
+    if (total == rta) {
+        debug("Sequencing result "+res);
+        $(el).addClass("gu-checked");
+
+        var seq = $("<div class='holding-seq'/>");
+        rtael.first().before(seq);
+        
+        if ($(el).find(".online-holding").is("*")) {
+            var n = $("<div class='holding-msg'>This item is available online:</div>");
+            seq.before(n);
+            n.after($(el).find(".online-holding"));
+            $(el).find(".online-holding").first().addClass("online-holding-first");
+        }
+
+        if ($(el).find(".gu-holding").is("*")) {
+            var n = $("<div class='holding-msg'>This item is available at Georgetown Libraries:</div>");
+            seq.before(n);
+            n.after($(el).find(".gu-holding"));
+            $(el).find(".gu-holding").first().addClass("gu-holding-first");
+        }
+
+        if ($(el).find(".non-gu-holding").is("*")) {
+            var n = $("<div class='holding-msg'>This item is available at Consortium Libraries:</div>");
+            seq.before(n);
+            n.after($(el).find(".non-gu-holding"));
+            $(el).find(".non-gu-holding").first().addClass("non-gu-holding-first");
+        }
+        
+        seq.remove();
+        $(el).find(".holding-msg").addClass("holding-header-sep");
+        $(el).find(".holding-header-sep").first().removeClass("holding-header-sep");
+        var gu = $(el).find(".gu-holding").length;
+        var online = $(el).find(".online-holding").length;
+        var nongu = $(el).find(".non-gu-holding").length;
+        debug("Sequencing complete "+res+"; total="+total+"; rta="+rta+"; gu="+gu+"; online="+online+"; nongu="+nongu);
+    } else {
+        debug("Sequencing INCOMPLETE "+res);
+    }
+}
+
+//Test for GU Holdings
+//Expand WRCL library abbreviations to meaningful names
 function testHolding(n) {
 	var b = false;
 	$(n).find("a.availabilityLink").each(function () {
@@ -88,6 +159,7 @@ function testHolding(n) {
 	return b;
 }
 
+//Test for online holdings
 function testOnlineHolding(n) {
 	var b = false;
 	$(n).find("a.availabilityLink").each(function () {
@@ -111,59 +183,3 @@ function testOnlineHolding(n) {
 	return b;
 }
 
-function checkResult(el) {
-    var res = $(el).parents("div.documentSummary").find("span.resultNumber").text();
-    debug("Checking result "+res);
-    var total = $(el).find("div.docFooter>div.row>div>div:has(span.icon)").length;
-    var rta = $(el).find("div.docFooter>div.row>div>div:has(a.availabilityLink)").length;
-	$(el).find("div.docFooter>div.row>div>div:has(a.availabilityLink)").each(
-		function () {
-			if (testHolding(this)) {
-		        $(this).addClass("gu-holding");
-			} else if (testOnlineHolding(this)) {
-			    $(this).addClass("online-holding");
-	        } else {
-		        $(this).addClass("non-gu-holding");
-	        }
-		}
-	);
-	
-	if ($(el).find("div.docFooter>div.row>div>div:has(span.icon)").length == $(el).find("div.docFooter>div.row>div>div:has(a.availabilityLink)").length) {
-	    debug("Sequencing result "+res);
-		$(el).addClass("gu-checked");
-
-		var seq = $("<div class='holding-seq'/>");
-		$(el).find("div.docFooter>div.row>div>div:has(a.availabilityLink)").first().before(seq);
-		
-		if ($(el).find(".online-holding").is("*")) {
-			var n = $("<div class='holding-msg'>This item is available online:</div>");
-			seq.before(n);
-			n.after($(el).find(".online-holding"));
-			$(el).find(".online-holding").first().addClass("online-holding-first");
-		}
-
-		if ($(el).find(".gu-holding").is("*")) {
-			var n = $("<div class='holding-msg'>This item is available at Georgetown Libraries:</div>");
-			seq.before(n);
-			n.after($(el).find(".gu-holding"));
-			$(el).find(".gu-holding").first().addClass("gu-holding-first");
-		}
-
-		if ($(el).find(".non-gu-holding").is("*")) {
-			var n = $("<div class='holding-msg'>This item is available at Consortium Libraries:</div>");
-			seq.before(n);
-			n.after($(el).find(".non-gu-holding"));
-			$(el).find(".non-gu-holding").first().addClass("non-gu-holding-first");
-		}
-		
-		seq.remove();
-		$(el).find(".holding-msg").addClass("holding-header-sep");
-		$(el).find(".holding-header-sep").first().removeClass("holding-header-sep");
-        var gu = $(el).find(".gu-holding").length;
-        var online = $(el).find(".online-holding").length;
-        var nongu = $(el).find(".non-gu-holding").length;
-        debug("Sequencing complete "+res+"; total="+total+"; rta="+rta+"; gu="+gu+"; online="+online+"; nongu="+nongu);
-	} else {
-        debug("Sequencing INCOMPLETE "+res);
-	}
-}
