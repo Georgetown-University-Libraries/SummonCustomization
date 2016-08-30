@@ -1,4 +1,7 @@
-/* See http://www.library.georgetown.edu/sites/all/themes/summon/summon-customize.js */
+/* See http://www.library.georgetown.edu/sites/default/files/summon/summon-customize.js
+ * 2016-08-30 - Troubleshoot js caching issues  
+ * 2016-08-29 - Recode for new Summon Markup  
+ */
 $(document).ready(function () {
 	$(document).find("head").append("<style id='gu-custom-css' type='text/css'/>");
 	$("#gu-custom-css").append(".holding-msg {font-weight: bold; margin-top: 9px; margin-bottom: 9px;}");
@@ -22,7 +25,7 @@ $(document).ready(function () {
     $("#gu-custom-css").append(".input-group-btn:last-child > .btn:last-of-type {margin-left:12px;}");
     $("#gu-custom-css").append(".site-white_cog {background-image: none; min-width: 95px;}");
     $("#gu-custom-css").append(".site-white_cog::before {content:'Advanced Search'; color: #BAE0F7; font-size: 80%; font-weight: bold; font-family:sans-serif;}");
-	checkAll();
+    setTimeout(function () {checkAll(); }, 200);
 });
 
 $(document).ready(function () {
@@ -96,6 +99,8 @@ function testOnlineHolding(n) {
 }
 
 function checkResult(el) {
+    var res = $(el).parents("div.documentSummary").find("span.resultNumber").text();
+    console.log("Checking result "+res);
 	$(el).find("div.docFooter>div.row>div>div:has(div.availability)").each(
 		function () {
 			if (testHolding(this)) {
@@ -109,6 +114,7 @@ function checkResult(el) {
 	);
 	
 	if ($(el).find("div.docFooter>div.row>div>div:has(span.icon)").length == $(el).find("div.docFooter>div.row>div>div:has(div.availability)").length) {
+	    console.log("Sequencing result "+res);
 		$(el).addClass("gu-checked");
 
 		var seq = $("<div class='holding-seq'/>");
@@ -138,5 +144,12 @@ function checkResult(el) {
 		seq.remove();
 		$(el).find(".holding-msg").addClass("holding-header-sep");
 		$(el).find(".holding-header-sep").first().removeClass("holding-header-sep");
+		var total = $(el).find("div.docFooter>div.row>div>div:has(div.availability)").length;
+        var gu = $(el).find(".gu-holding").length;
+        var online = $(el).find(".online-holding").length;
+        var nongu = $(el).find(".non-gu-holding").length;
+        console.log("Sequencing complete "+res+"; total="+total+"; gu="+gu+"; online="+online+"; nongu="+nongu);
+	} else {
+        console.log("Sequencing INCOMPLETE "+res);
 	}
 }
