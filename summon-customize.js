@@ -25,7 +25,8 @@ $(document).ready(function () {
     $("#gu-custom-css").append(".input-group-btn:last-child > .btn:last-of-type {margin-left:12px;}");
     $("#gu-custom-css").append(".site-white_cog {background-image: none; min-width: 95px;}");
     $("#gu-custom-css").append(".site-white_cog::before {content:'Advanced Search'; color: #BAE0F7; font-size: 80%; font-weight: bold; font-family:sans-serif;}");
-    setTimeout(function () {checkAll(); }, 200);
+    debug("Pre checkAll h");
+    setTimeout(function () {checkAll(); }, 2000);
 });
 
 $(document).ready(function () {
@@ -55,10 +56,21 @@ function checkAll() {
 	setTimeout(function () {checkAll(); }, 500);
 }
 
+function isDebug() {
+    return true;
+}
+
+function debug(s) {
+    if (isDebug()){
+        console.log(s);        
+    }
+}
+
 
 function testHolding(n) {
 	var b = false;
 	$(n).find("a.availabilityLink").each(function () {
+        var orig = $(this).text();
 		var t = $(this).text();
 		if (t.search(/ GT:( |$)/) > -1) b = true;
 		t = t.replace(/ GT: /, " Georgetown: ");
@@ -71,6 +83,7 @@ function testHolding(n) {
 		t = t.replace(/ GA: /, " Gallaudet: ");
 		t = t.replace(/ DC: /, " UDC: ");
 		$(this).text(t);
+		debug(orig+"-->"+t+"; "+b);
 	});
 	return b;
 }
@@ -100,8 +113,10 @@ function testOnlineHolding(n) {
 
 function checkResult(el) {
     var res = $(el).parents("div.documentSummary").find("span.resultNumber").text();
-    console.log("Checking result "+res);
-	$(el).find("div.docFooter>div.row>div>div:has(div.availability)").each(
+    debug("Checking result "+res);
+    var total = $(el).find("div.docFooter>div.row>div>div:has(span.icon)").length;
+    var rta = $(el).find("div.docFooter>div.row>div>div:has(a.availabilityLink)").length;
+	$(el).find("div.docFooter>div.row>div>div:has(a.availabilityLink)").each(
 		function () {
 			if (testHolding(this)) {
 		        $(this).addClass("gu-holding");
@@ -113,12 +128,12 @@ function checkResult(el) {
 		}
 	);
 	
-	if ($(el).find("div.docFooter>div.row>div>div:has(span.icon)").length == $(el).find("div.docFooter>div.row>div>div:has(div.availability)").length) {
-	    console.log("Sequencing result "+res);
+	if ($(el).find("div.docFooter>div.row>div>div:has(span.icon)").length == $(el).find("div.docFooter>div.row>div>div:has(a.availabilityLink)").length) {
+	    debug("Sequencing result "+res);
 		$(el).addClass("gu-checked");
 
 		var seq = $("<div class='holding-seq'/>");
-		$(el).find("div.docFooter>div.row>div>div:has(div.availability)").first().before(seq);
+		$(el).find("div.docFooter>div.row>div>div:has(a.availabilityLink)").first().before(seq);
 		
 		if ($(el).find(".online-holding").is("*")) {
 			var n = $("<div class='holding-msg'>This item is available online:</div>");
@@ -144,12 +159,11 @@ function checkResult(el) {
 		seq.remove();
 		$(el).find(".holding-msg").addClass("holding-header-sep");
 		$(el).find(".holding-header-sep").first().removeClass("holding-header-sep");
-		var total = $(el).find("div.docFooter>div.row>div>div:has(div.availability)").length;
         var gu = $(el).find(".gu-holding").length;
         var online = $(el).find(".online-holding").length;
         var nongu = $(el).find(".non-gu-holding").length;
-        console.log("Sequencing complete "+res+"; total="+total+"; gu="+gu+"; online="+online+"; nongu="+nongu);
+        debug("Sequencing complete "+res+"; total="+total+"; rta="+rta+"; gu="+gu+"; online="+online+"; nongu="+nongu);
 	} else {
-        console.log("Sequencing INCOMPLETE "+res);
+        debug("Sequencing INCOMPLETE "+res);
 	}
 }
