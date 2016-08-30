@@ -28,7 +28,8 @@ $(document).ready(function () {
     $("#gu-custom-css").append(".site-white_cog::before {content:'Advanced Search'; color: #BAE0F7; font-size: 80%; font-weight: bold; font-family:sans-serif;}");
     debug("Pre checkAll i");
     //Allow some time for real time availability data (rta) to load
-    setTimeout(function () {checkAll(); }, 1000);
+    //setTimeout(function () {checkAll(); }, 500);
+    checkAll();
 });
 
 //Not sure what this block is doing
