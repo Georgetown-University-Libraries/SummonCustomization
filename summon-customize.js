@@ -1,4 +1,5 @@
 /* See http://www.library.georgetown.edu/sites/default/files/summon/summon-customize.js
+ * 2016-08-31 - Group "Films On Demand" as an Online Resource  
  * 2016-08-30 - Troubleshoot js caching issues  
  * 2016-08-29 - Recode for new Summon Markup  
  */
@@ -144,8 +145,17 @@ function testHolding(n) {
 	$(n).find("a.availabilityLink").each(function () {
         var orig = $(this).text();
 		var t = $(this).text();
-		if (t.search(/ GT:( |$)/) > -1) b = true;
+		
+		//Check if it is a GU resource.  
+		if (t.search(/ GT:( |$)/) > -1) {
+		    if (t.search(/Films On Demand/) > -1) {
+		        //Films on Demand also contain the GT: in their availability
+		    } else {
+	            b = true;		        
+		    }
+		}
 		t = t.replace(/ GT: /, " Georgetown: ");
+        t = t.replace(/ GT:$/, " Georgetown:");
 		t = t.replace(/ GW: /, " George Washington: ");
 		t = t.replace(/ GM: /, " George Mason: ");
 		t = t.replace(/ CU: /, " Catholic: ");
@@ -171,14 +181,8 @@ function testOnlineHolding(n) {
 			b = true;
 		} else if (t.search(/Available Online/) > -1) {
 			b = true;
-		} else if (t.search(/Check Availability/) > -1) {
-			var tl = $(n).find("span.ng-binding").text();
-			if (tl.search(/Video Recording/) > -1) {
-				if ($(this).nextAll("span.ng-scope").is("*")) {
-				} else {
-					b = true;
-				}
-			}
+		} else if (t.search(/Films On Demand/) > -1) {
+			b = true;
 		}
 	});
 	return b;
