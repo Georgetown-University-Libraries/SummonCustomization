@@ -27,3 +27,7 @@ This code is used by Georgetown University Library to customize the display of S
 
 ### Additional Information
 [Hacking Summon 2.0 - Presentation to the Washington Research Library Consortium](https://drive.google.com/a/georgetown.edu/folderview?id=0B6H9N0_0aU-oY25NSF9XZ2diUW8&usp=sharing#)
+
+***
+[![Georgetown University Library IT Code Repositories](https://raw.githubusercontent.com/Georgetown-University-Libraries/georgetown-university-libraries.github.io/master/LIT-logo-small.png)Georgetown University Library IT Code Repositories](http://georgetown-university-libraries.github.io/)
+
