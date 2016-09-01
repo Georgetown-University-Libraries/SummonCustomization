@@ -2,6 +2,9 @@
 
 This code is used by Georgetown University Library to customize the display of Summon 2.0.
 
+![image](https://cloud.githubusercontent.com/assets/1111057/3803809/c3fc95ac-1c1e-11e4-81d5-1e5d7bed47fb.png)
+
+
 ## This code accomplishes the following 
 * Style page in accordance with University Visual Identity guidelines
 * Clarify ArtStor usage
