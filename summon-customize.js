@@ -27,7 +27,6 @@ $(document).ready(function () {
     $("#gu-custom-css").append(".input-group-btn:last-child > .btn:last-of-type {margin-left:12px;}");
     $("#gu-custom-css").append(".site-white_cog {background-image: none; min-width: 95px;}");
     $("#gu-custom-css").append(".site-white_cog::before {content:'Advanced Search'; color: #BAE0F7; font-size: 80%; font-weight: bold; font-family:sans-serif;}");
-    $("#gu-custom-css").append(".hidden-holding {display: none;}");
     debug("Pre checkAll i");
     //Allow some time for real time availability data (rta) to load
     //setTimeout(function () {checkAll(); }, 500);
@@ -165,7 +164,7 @@ function testHolding(n) {
 	        t = t.replace(/ AU: /, " American: ");
 	        t = t.replace(/ HU: /, " Howard: ");
             t = t.replace(/ HL: /, " Howard Law: ");
-            t = t.replace(/ LS: /, " Howard Health Science: ");
+            t = t.replace(/ LS: /, " Howard Health Sciences: ");
 	        t = t.replace(/ MU: /, " Marymount: ");
 	        t = t.replace(/ GA: /, " Gallaudet: ");
 	        t = t.replace(/ DC: /, " UDC: ");
