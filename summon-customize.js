@@ -27,6 +27,7 @@ $(document).ready(function () {
     $("#gu-custom-css").append(".input-group-btn:last-child > .btn:last-of-type {margin-left:12px;}");
     $("#gu-custom-css").append(".site-white_cog {background-image: none; min-width: 95px;}");
     $("#gu-custom-css").append(".site-white_cog::before {content:'Advanced Search'; color: #BAE0F7; font-size: 80%; font-weight: bold; font-family:sans-serif;}");
+    $("#gu-custom-css").append(".hidden-holding {display: none;}");
     debug("Pre checkAll i");
     //Allow some time for real time availability data (rta) to load
     //setTimeout(function () {checkAll(); }, 500);
@@ -88,12 +89,13 @@ function checkResult(el) {
     var rta = rtael.length;
     rtael.each(
         function () {
-            if (testHolding(this)) {
-                $(this).addClass("gu-holding");
-            } else if (testOnlineHolding(this)) {
+            if (testOnlineHolding(this)) {
                 $(this).addClass("online-holding");
+            } else if (testHolding(this)) {
+                $(this).addClass("gu-holding");
             } else {
-                $(this).addClass("non-gu-holding");
+                var t = $(this).find("a.availabilityLink:first").text();
+                $(this).addClass(t == "Check Availability" ? "non-gu-holding-check" : "non-gu-holding");
             }
         }
     );
@@ -119,11 +121,12 @@ function checkResult(el) {
             $(el).find(".gu-holding").first().addClass("gu-holding-first");
         }
 
-        if ($(el).find(".non-gu-holding").is("*")) {
+        if ($(el).find(".non-gu-holding, .non-gu-holding-check").is("*")) {
             var n = $("<div class='holding-msg'>This item is available at Consortium Libraries:</div>");
             seq.before(n);
+            n.after($(el).find(".non-gu-holding-check"));
             n.after($(el).find(".non-gu-holding"));
-            $(el).find(".non-gu-holding").first().addClass("non-gu-holding-first");
+            $(el).find(".non-gu-holding, .non-gu-holding-check").first().addClass("non-gu-holding-first");
         }
         
         seq.remove();
@@ -131,7 +134,7 @@ function checkResult(el) {
         $(el).find(".holding-header-sep").first().removeClass("holding-header-sep");
         var gu = $(el).find(".gu-holding").length;
         var online = $(el).find(".online-holding").length;
-        var nongu = $(el).find(".non-gu-holding").length;
+        var nongu = $(el).find(".non-gu-holding, .non-gu-holding-check").length;
         debug("Sequencing complete "+res+"; total="+total+"; rta="+rta+"; gu="+gu+"; online="+online+"; nongu="+nongu);
     } else {
         debug("Sequencing INCOMPLETE "+res);
@@ -148,22 +151,30 @@ function testHolding(n) {
 		
 		//Check if it is a GU resource.  
 		if (t.search(/ GT:( |$)/) > -1) {
+	        t = t.replace(/ GT: /, " Georgetown: ");
+	        t = t.replace(/ GT:$/, " Georgetown:");
 		    if (t.search(/Films On Demand/) > -1) {
 		        //Films on Demand also contain the GT: in their availability
 		    } else {
 	            b = true;		        
 		    }
+		} else if (t.search(/ (GW|GM|CU|AU|HU|HL|LS|MU|GA|DC):( |$)/) > -1){
+	        t = t.replace(/ GW: /, " George Washington: ");
+	        t = t.replace(/ GM: /, " George Mason: ");
+	        t = t.replace(/ CU: /, " Catholic: ");
+	        t = t.replace(/ AU: /, " American: ");
+	        t = t.replace(/ HU: /, " Howard: ");
+            t = t.replace(/ HL: /, " Howard Law: ");
+            t = t.replace(/ LS: /, " Howard Health Science: ");
+	        t = t.replace(/ MU: /, " Marymount: ");
+	        t = t.replace(/ GA: /, " Gallaudet: ");
+	        t = t.replace(/ DC: /, " UDC: ");
+		} else if (t == "Check Availability"){
+            //Assume this is a WRLC representation of a GU Law Resource
+		} else {
+		    //Assume this is a GU Law Resource
+		    b=true;
 		}
-		t = t.replace(/ GT: /, " Georgetown: ");
-        t = t.replace(/ GT:$/, " Georgetown:");
-		t = t.replace(/ GW: /, " George Washington: ");
-		t = t.replace(/ GM: /, " George Mason: ");
-		t = t.replace(/ CU: /, " Catholic: ");
-		t = t.replace(/ AU: /, " American: ");
-		t = t.replace(/ HU: /, " Howard: ");
-		t = t.replace(/ MU: /, " Marymount: ");
-		t = t.replace(/ GA: /, " Gallaudet: ");
-		t = t.replace(/ DC: /, " UDC: ");
 		$(this).text(t);
 		debug(orig+"-->"+t+"; "+b);
 	});
@@ -187,4 +198,5 @@ function testOnlineHolding(n) {
 	});
 	return b;
 }
+
 
