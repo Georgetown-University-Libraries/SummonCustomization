@@ -149,7 +149,7 @@ function testHolding(n) {
 		var t = $(this).text();
 		
 		//Check if it is a GU resource.  
-		if (t.search(/ GT:( |$)/) > -1) {
+		if (t.search(/ GT:( |$)/) > -1 || t.search(/ Georgetown Law Library$/) > -1) {
 	        t = t.replace(/ GT: /, " Georgetown: ");
 	        t = t.replace(/ GT:$/, " Georgetown:");
 		    if (t.search(/Films On Demand/) > -1) {
@@ -168,11 +168,6 @@ function testHolding(n) {
 	        t = t.replace(/ MU: /, " Marymount: ");
 	        t = t.replace(/ GA: /, " Gallaudet: ");
 	        t = t.replace(/ DC: /, " UDC: ");
-		} else if (t == "Check Availability"){
-            //Assume this is a WRLC representation of a GU Law Resource
-		} else {
-		    //Assume this is a GU Law Resource
-		    b=true;
 		}
 		$(this).text(t);
 		debug(orig+"-->"+t+"; "+b);
